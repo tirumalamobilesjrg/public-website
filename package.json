@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:anon": "node scripts/anon-check.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "5.3.0",

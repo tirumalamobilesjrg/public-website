@@ -3,6 +3,7 @@ import Link from 'next/link'
 import '@fontsource-variable/figtree'
 import '@fontsource-variable/bricolage-grotesque'
 import './globals.css'
+import { InstallPrompt } from '@/components/InstallPrompt'
 import { BottomNav, TopNav } from '@/components/Nav'
 import { getEnv } from '@/lib/env'
 import { BRAND_NAME, getShopProfile, phoneLinks } from '@/lib/shop'
@@ -65,6 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </div>
           </div>
         </footer>
+        <InstallPrompt />
         <BottomNav />
       </body>
     </html>

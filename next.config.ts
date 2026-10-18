@@ -12,6 +12,7 @@ const config: NextConfig = {
   images: { remotePatterns: imagePattern, dangerouslyAllowLocalIP: supabase?.hostname === '127.0.0.1' },
   async headers() {
     return [
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }] },
       {
         source: '/(.*)',
         headers: [
