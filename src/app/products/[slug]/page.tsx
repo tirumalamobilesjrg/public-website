@@ -6,6 +6,8 @@ import { AvailabilityBadge, Price } from '@/components/ProductCard'
 import { getProduct } from '@/lib/catalogue'
 import { formatPrice, primaryImage, priceSummary, variantLabel } from '@/lib/format'
 import { BRAND_NAME, getShopProfile, phoneLinks } from '@/lib/shop'
+import { PhoneIcon, WhatsAppIcon } from '@/components/ContactIcons'
+import { whatsappLink } from '@/lib/contact'
 import { publicImageUrl } from '@/lib/supabase/rest'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -86,8 +88,16 @@ export default async function ProductPage({ params }: Props) {
           </section>
 
           <div className="actions">
-            {call && <a className="btn" href={call.tel}>Call to check availability</a>}
-            {chat && <a className="btn btn-ghost" href={chat.wa} rel="noopener noreferrer">WhatsApp</a>}
+            {chat && (
+              <a className="btn btn-wa" href={whatsappLink(chat.wa, product.name, priceSummary(variants).fromPrice)} rel="noopener noreferrer">
+                <WhatsAppIcon /> Ask on WhatsApp
+              </a>
+            )}
+            {call && (
+              <a className="btn btn-ghost" href={call.tel}>
+                <PhoneIcon /> Call the shop
+              </a>
+            )}
             {!call && !chat && <Link className="btn" href="/contact">Visit the shop</Link>}
             <Link className="btn btn-ghost" href={`/compare?p=${product.slug}`}>Compare</Link>
           </div>

@@ -1,4 +1,4 @@
-// Stand-in for the Supabase REST API serving the four public views, for local build/smoke checks only.
+// Stand-in for the Supabase REST API serving the public views (catalogue + shop profile), for local build/smoke checks only.
 // It mimics just what the site uses: eq./in. filters, ilike on `or`, order, Range + Prefer count=exact.
 // It is NOT a security test: the real anonymous-access checks run against the local Supabase stack (see docs/TESTING.md).
 import { createServer } from 'node:http'
@@ -22,7 +22,8 @@ const specs = [
   { id: 's1', product_slug: 'nova-x1', group_name: 'Display', spec_key: 'Size', spec_value: '6.1 inch', sort_order: 1 },
   { id: 's2', product_slug: 'nova-x1', group_name: 'Battery', spec_key: 'Capacity', spec_value: '4,000 mAh', sort_order: 2 },
 ]
-const views = { public_catalogue_products: products, public_catalogue_variants: variants, public_catalogue_images: images, public_catalogue_specifications: specs }
+const shop = [{ shop_name: 'Tirumala Mobiles', address: 'Main Road, Tirupati', phone: '98765 43210', whatsapp: '98765 43211', email: null, opening_hours: 'Mon to Sat 10:00 to 21:00, Sun 10:00 to 14:00', map_url: 'https://maps.google.com/?q=Tirumala+Mobiles', about: null }]
+const views = { public_shop_profile: shop, public_catalogue_products: products, public_catalogue_variants: variants, public_catalogue_images: images, public_catalogue_specifications: specs }
 
 createServer((req, res) => {
   const url = new URL(req.url, 'http://x')

@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Availability, ProductCard as Card } from '@/lib/catalogue-types'
 import { availabilityLabel, formatPrice } from '@/lib/format'
+import type { Contact } from '@/lib/contact'
+import { CardContact } from './ContactIcons'
 
 export function AvailabilityBadge({ value }: { value: Availability }) {
   return <span className={value === 'in_stock' ? 'badge badge-in' : 'badge badge-out'}>{availabilityLabel(value)}</span>
@@ -18,7 +20,7 @@ export function Price({ price, from = false }: { price: number | null; from?: bo
 }
 
 /** `imageUrl` is resolved by the page (server) so this component stays free of environment access. */
-export function ProductCardView({ card, imageUrl }: { card: Card; imageUrl: string | null }) {
+export function ProductCardView({ card, imageUrl, contact = null }: { card: Card; imageUrl: string | null; contact?: Contact | null }) {
   return (
     <li>
       <article className="card">
@@ -30,6 +32,7 @@ export function ProductCardView({ card, imageUrl }: { card: Card; imageUrl: stri
           <Link href={`/products/${card.slug}`}>{card.name}</Link>
           <Price price={card.fromPrice} from={card.priced} />
           <AvailabilityBadge value={card.availability} />
+          {contact && <CardContact contact={contact} name={card.name} price={card.fromPrice} />}
         </div>
       </article>
     </li>

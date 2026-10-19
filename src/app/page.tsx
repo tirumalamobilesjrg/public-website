@@ -3,16 +3,24 @@ import { ProductCardView } from '@/components/ProductCard'
 import { listFacets, listProducts } from '@/lib/catalogue'
 import { publicImageUrl } from '@/lib/supabase/rest'
 import { BRAND_NAME, getShopProfile, phoneLinks } from '@/lib/shop'
+import { contactFrom } from '@/lib/contact'
+import { PhoneIcon, PinIcon, WhatsAppIcon } from '@/components/ContactIcons'
 
 export default async function Home() {
   const [shop, facets, featured] = await Promise.all([getShopProfile(), listFacets().catch(() => null), listProducts({ inStockOnly: true }).catch(() => null)])
   const call = phoneLinks(shop.phone)
   const chat = phoneLinks(shop.whatsapp ?? shop.phone)
+  const contact = contactFrom(call, chat)
   return (
     <>
-      <section className="intro">
-        <h1>{BRAND_NAME}</h1>
+      <section className="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title">{BRAND_NAME}</h1>
         <p>{shop.about ?? 'Mobile phones and accessories. Browse what is available, check prices, then visit the shop to see it in person.'}</p>
+        {shop.address && (
+          <p className="hero-address">
+            <PinIcon size={18} /> {shop.address}
+          </p>
+        )}
         <form className="search-form" action="/products" role="search">
           <div className="grow">
             <label htmlFor="home-q">Search phones and accessories</label>
@@ -20,18 +28,25 @@ export default async function Home() {
           </div>
           <button className="btn" type="submit">Search</button>
         </form>
+        {(chat || call || shop.map_url) && (
+          <div className="hero-actions">
+            {chat && <a className="btn btn-wa" href={chat.wa} rel="noopener noreferrer"><WhatsAppIcon /> Chat on WhatsApp</a>}
+            {call && <a className="btn btn-ghost" href={call.tel}><PhoneIcon /> Call</a>}
+            {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener noreferrer"><PinIcon /> Directions</a>}
+          </div>
+        )}
       </section>
 
       {facets && facets.categories.length > 0 && (
         <section aria-labelledby="cats">
           <h2 id="cats">Shop by category</h2>
-          <ul className="chips">{facets.categories.map((c) => <li key={c.slug}><Link href={`/categories/${c.slug}`}>{c.name}</Link></li>)}</ul>
+          <ul className="tiles">{facets.categories.map((c) => <li key={c.slug}><Link href={`/categories/${c.slug}`}><span>{c.name}</span><span className="tile-go" aria-hidden="true">→</span></Link></li>)}</ul>
         </section>
       )}
       {facets && facets.brands.length > 0 && (
         <section aria-labelledby="brands">
           <h2 id="brands">Brands</h2>
-          <ul className="chips">{facets.brands.map((b) => <li key={b.slug}><Link href={`/products?brand=${b.slug}`}>{b.name}</Link></li>)}</ul>
+          <ul className="tiles">{facets.brands.map((b) => <li key={b.slug}><Link href={`/products?brand=${b.slug}`}><span className="tile-mark" aria-hidden="true">{b.name.trim().charAt(0).toUpperCase()}</span><span>{b.name}</span></Link></li>)}</ul>
         </section>
       )}
 
@@ -44,7 +59,7 @@ export default async function Home() {
           <div className="empty"><p>No products are listed yet. Please check back soon or visit the shop.</p></div>
         ) : (
           <>
-            <ul className="grid">{featured.cards.slice(0, 8).map((c) => <ProductCardView key={c.id} card={c} imageUrl={c.image ? publicImageUrl(c.image.storage_path) : null} />)}</ul>
+            <ul className="grid">{featured.cards.slice(0, 8).map((c) => <ProductCardView key={c.id} card={c} contact={contact} imageUrl={c.image ? publicImageUrl(c.image.storage_path) : null} />)}</ul>
             <p><Link className="btn btn-ghost" href="/products">See all products</Link></p>
           </>
         )}
@@ -57,9 +72,9 @@ export default async function Home() {
             {shop.address && <p>{shop.address}</p>}
             {shop.opening_hours && <p>Open: {shop.opening_hours}</p>}
             <div className="actions">
-              {call && <a className="btn" href={call.tel}>Call now</a>}
-              {chat && <a className="btn btn-ghost" href={chat.wa} rel="noopener noreferrer">WhatsApp</a>}
-              {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener noreferrer">Get directions</a>}
+              {chat && <a className="btn btn-wa" href={chat.wa} rel="noopener noreferrer"><WhatsAppIcon /> WhatsApp</a>}
+              {call && <a className="btn btn-ghost" href={call.tel}><PhoneIcon /> Call now</a>}
+              {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener noreferrer"><PinIcon /> Get directions</a>}
             </div>
           </>
         ) : (

@@ -3,6 +3,8 @@ import { ProductCardView } from '@/components/ProductCard'
 import { listFacets, listProducts } from '@/lib/catalogue'
 import type { CatalogueQuery } from '@/lib/catalogue-types'
 import { publicImageUrl } from '@/lib/supabase/rest'
+import { contactFrom } from '@/lib/contact'
+import { getShopProfile, phoneLinks } from '@/lib/shop'
 
 export type RawParams = Record<string, string | string[] | undefined>
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)
@@ -35,7 +37,8 @@ export function hrefWith(basePath: string, q: CatalogueQuery, page: number) {
 /** Filter form (plain GET, works without JavaScript), results grid and pager. `lockedCategory` fixes the category on /categories/[slug]. */
 export async function CatalogueView({ basePath, params, lockedCategory }: { basePath: string; params: RawParams; lockedCategory?: string }) {
   const query = { ...readQuery(params), ...(lockedCategory ? { category: lockedCategory } : {}) }
-  const [result, facets] = await Promise.all([listProducts(query).catch(() => null), listFacets().catch(() => null)])
+  const [result, facets, shop] = await Promise.all([listProducts(query).catch(() => null), listFacets().catch(() => null), getShopProfile()])
+  const contact = contactFrom(phoneLinks(shop.phone), phoneLinks(shop.whatsapp ?? shop.phone))
   return (
     <>
       <form className="filters" action={basePath} role="search" aria-label="Search and filter">
@@ -86,7 +89,7 @@ export async function CatalogueView({ basePath, params, lockedCategory }: { base
       ) : (
         <>
           <p className="muted" aria-live="polite">{result.total} {result.total === 1 ? 'product' : 'products'}</p>
-          <ul className="grid">{result.cards.map((c) => <ProductCardView key={c.id} card={c} imageUrl={c.image ? publicImageUrl(c.image.storage_path) : null} />)}</ul>
+          <ul className="grid">{result.cards.map((c) => <ProductCardView key={c.id} card={c} contact={contact} imageUrl={c.image ? publicImageUrl(c.image.storage_path) : null} />)}</ul>
           <Pager page={result.page} pages={result.pages} hrefFor={(p) => hrefWith(basePath, query, p)} />
         </>
       )}

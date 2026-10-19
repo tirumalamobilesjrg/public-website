@@ -130,3 +130,26 @@ html { scroll-padding-top: 4.5rem; scroll-padding-bottom: 6rem; }
 .bottom-nav a[aria-current='page'] { font-weight: 800; background: #faf1dc; }
 .gallery .thumbs button { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; }
 .gallery .thumbs button[aria-current='true'] img { outline: 3px solid var(--navy); outline-offset: 1px; }
+
+/* home hero: a compact shop header, no photo banner */
+.hero { background: var(--navy); color: #fff; border-radius: var(--radius); padding: 1.4rem 1.2rem 1.3rem; margin: 0.25rem 0 1.25rem; }
+.hero h1 { color: #fff; }
+.hero p { color: #d7e2ee; margin: 0 0 0.75rem; max-width: 40rem; }
+.hero .hero-address { display: flex; align-items: center; gap: 0.4rem; color: #fff; font-weight: 600; }
+.hero label { color: #fff; }
+.hero :focus-visible { outline-color: #fff; }
+.hero-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 1rem; }
+.btn-wa { background: #25d366; border-color: #25d366; color: #07210f; } .btn-wa:hover { background: #1fb957; border-color: #1fb957; color: #07210f; }
+
+/* category and brand tiles */
+.tiles { list-style: none; margin: 0.75rem 0 1.25rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.6rem; }
+.tiles a { display: flex; align-items: center; gap: 0.7rem; min-height: 56px; padding: 0.6rem 0.9rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: var(--navy); font-weight: 700; }
+.tiles a:hover { border-color: var(--primary-dark); background: #faf1dc; }
+.tile-go { margin-left: auto; color: var(--muted); }
+.tile-mark { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #faf1dc; border: 1px solid var(--primary); display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; }
+
+/* the two icon buttons at the foot of a product card sit above the card-wide link */
+.card-contact { position: relative; z-index: 1; display: flex; gap: 0.5rem; margin-top: 0.35rem; }
+.icon-link { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--white); color: var(--navy); }
+.icon-link:hover { color: var(--navy); border-color: var(--primary-dark); background: #faf1dc; }
+.icon-wa { background: #25d366; border-color: #25d366; color: #07210f; } .icon-wa:hover { background: #1fb957; border-color: #1fb957; color: #07210f; }
