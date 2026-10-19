@@ -31,3 +31,9 @@ Not done / not verified: real Supabase (anonymous-access tests against the local
 - Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (public key only) and `SITE_URL` as Worker variables in the Cloudflare dashboard, never in the repo. For local preview put them in `.dev.vars` (git-ignored).
 - Images: `images.unoptimized` (no Cloudflare image optimiser configured), so photos load as uploaded; keep CRM uploads small.
 - Theme: same logo palette as the CRM (navy `#0f1d3a`, gold `#d5a755`, link `#1c3f8c`); logo emblem in `public/logo-*.png` and `public/icons/`.
+
+## Verified on 2026-10-19 (local Supabase stack with migrations 0001-0022, website running as a Cloudflare Worker under workerd)
+- 45 browser checks at phone/tablet/desktop widths: no horizontal overflow, one h1 per page, photos from real Storage load (main + thumbnails), alt text on every image, no cart/checkout/buy controls, call button built from the CRM phone number, home lists only in-stock products, catalogue shows out-of-stock phones with an "Out of stock" label, unknown page shows the friendly 404, no uncaught browser errors. Unpublishing a product made it 404 and removed it from the catalogue and sitemap immediately; republishing restored it.
+- `npm run check:anon` passed 57/57 against the local stack (and against the hosted project).
+- On Workers without a cache binding the 300 s fetch revalidation does not cache: a CRM edit showed on the site on the very next request. Each page view therefore calls Supabase (2-4 small reads); add a Cache API layer if traffic grows.
+- Not verified: install/offline behaviour on a real phone, a deployed Cloudflare Worker (nothing is deployed), Lighthouse scores, photo delivery speed (photos are not resized; consider resizing in the CRM before upload).
