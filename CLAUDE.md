@@ -28,7 +28,7 @@ Not done / not verified: real Supabase (anonymous-access tests against the local
 ## Hosting: Cloudflare Workers (decided 2026-10-19; Vercel's free plan is non-commercial)
 - Adapter: `@opennextjs/cloudflare` 1.20.12 (peer `next >=16.4.1`) + `wrangler` 4.151.1, config in `wrangler.jsonc` and `open-next.config.ts`.
 - `npm run cf:build` builds the Worker (verified locally on Windows and run under `wrangler` workerd with `cf:preview`; routes, 404s, sitemap, manifest and static assets answered correctly against the stand-in server). `npm run cf:deploy` exists but has NOT been run: deploying needs the owner's Cloudflare account and approval.
-- Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (public key only) and `SITE_URL` as Worker variables in the Cloudflare dashboard, never in the repo. For local preview put them in `.dev.vars` (git-ignored).
+- `SITE_URL` falls back to Vercel's `VERCEL_PROJECT_PRODUCTION_URL`/`VERCEL_URL` when unset (so a first Vercel test deploy builds); on Cloudflare it is required. Set `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (public key only) and `SITE_URL` as Worker variables in the Cloudflare dashboard, never in the repo. For local preview put them in `.dev.vars` (git-ignored).
 - Images: `images.unoptimized` (no Cloudflare image optimiser configured), so photos load as uploaded; keep CRM uploads small.
 - Theme: same logo palette as the CRM (navy `#0f1d3a`, gold `#d5a755`, link `#1c3f8c`); logo emblem in `public/logo-*.png` and `public/icons/`.
 

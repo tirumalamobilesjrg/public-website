@@ -20,5 +20,12 @@ describe('parseEnv', () => {
     expect(() => parseEnv({ ...good, SUPABASE_URL: 'https://abcd.supabase.co/rest/v1' })).toThrow(/SUPABASE_URL/)
     expect(() => parseEnv({ ...good, SUPABASE_PUBLISHABLE_KEY: '' })).toThrow(/missing/)
     expect(() => parseEnv({ ...good, SITE_URL: 'nope' })).toThrow(/SITE_URL/)
+    expect(() => parseEnv({ ...good, SITE_URL: undefined })).toThrow(/SITE_URL is missing/)
+  })
+  it('falls back to the Vercel deployment address only when SITE_URL is not set', () => {
+    const noSite = { ...good, SITE_URL: undefined }
+    expect(parseEnv({ ...noSite, VERCEL_URL: 'my-site-abc.vercel.app' }).siteUrl).toBe('https://my-site-abc.vercel.app')
+    expect(parseEnv({ ...noSite, VERCEL_URL: 'preview.vercel.app', VERCEL_PROJECT_PRODUCTION_URL: 'shop.vercel.app' }).siteUrl).toBe('https://shop.vercel.app')
+    expect(parseEnv({ ...good, VERCEL_URL: 'my-site-abc.vercel.app' }).siteUrl).toBe('https://shop.example.com')
   })
 })

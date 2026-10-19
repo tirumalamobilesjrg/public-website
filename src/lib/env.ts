@@ -15,7 +15,10 @@ function jwtRole(key: string): string | null {
 export function parseEnv(source: Record<string, string | undefined>): SiteEnv {
   const url = (source.SUPABASE_URL ?? '').trim().replace(/\/+$/, '')
   const key = (source.SUPABASE_PUBLISHABLE_KEY ?? '').trim()
-  const site = (source.SITE_URL ?? '').trim().replace(/\/+$/, '')
+  // SITE_URL wins. On Vercel the platform provides the deployment's own address, so a first test deploy works before
+  // anyone knows the final URL; set SITE_URL once there is a real domain (required on Cloudflare).
+  const vercelHost = (source.VERCEL_PROJECT_PRODUCTION_URL || source.VERCEL_URL || '').trim()
+  const site = (source.SITE_URL?.trim() || (vercelHost ? `https://${vercelHost}` : '')).replace(/\/+$/, '')
   if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url) && !/^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(url)) {
     throw new Error('SUPABASE_URL must be the bare project URL, for example https://abcd.supabase.co')
   }
@@ -23,7 +26,7 @@ export function parseEnv(source: Record<string, string | undefined>): SiteEnv {
   if (key.startsWith('sb_secret_') || jwtRole(key) === 'service_role') {
     throw new Error('SUPABASE_PUBLISHABLE_KEY looks like a secret / service_role key. Use the publishable (anon) key only.')
   }
-  if (!/^https?:\/\/[^/\s]+$/.test(site)) throw new Error('SITE_URL must be an address such as https://www.example.com')
+  if (!/^https?:\/\/[^/\s]+$/.test(site)) throw new Error('SITE_URL is missing or invalid. Set it to the site address, for example https://www.example.com (Vercel deployments fall back to their own address).')
   return { supabaseUrl: url, publishableKey: key, siteUrl: site }
 }
 
