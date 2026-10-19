@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { ProductCardView } from '@/components/ProductCard'
 import { listFacets, listProducts } from '@/lib/catalogue'
@@ -40,13 +41,31 @@ export default async function Home() {
       {facets && facets.categories.length > 0 && (
         <section aria-labelledby="cats">
           <h2 id="cats">Shop by category</h2>
-          <ul className="tiles">{facets.categories.map((c) => <li key={c.slug}><Link href={`/categories/${c.slug}`}><span>{c.name}</span><span className="tile-go" aria-hidden="true">→</span></Link></li>)}</ul>
+          <ul className="cat-tiles">
+            {facets.categories.map((c) => (
+              <li key={c.slug} className={c.isPhoto ? 'cat-tile photo' : 'cat-tile'}>
+                <Link href={`/categories/${c.slug}`}>
+                  {c.imageUrl ? <Image src={c.imageUrl} alt="" width={480} height={360} sizes="(min-width:1100px) 280px, (min-width:700px) 30vw, 46vw" /> : <span className="cat-initial" aria-hidden="true">{c.name.trim().charAt(0).toUpperCase()}</span>}
+                  <span className="cat-label"><span>{c.name}</span><small>{c.count} {c.count === 1 ? 'product' : 'products'}</small></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
       {facets && facets.brands.length > 0 && (
         <section aria-labelledby="brands">
           <h2 id="brands">Brands</h2>
-          <ul className="tiles">{facets.brands.map((b) => <li key={b.slug}><Link href={`/products?brand=${b.slug}`}><span className="tile-mark" aria-hidden="true">{b.name.trim().charAt(0).toUpperCase()}</span><span>{b.name}</span></Link></li>)}</ul>
+          <ul className="brand-tiles">
+            {facets.brands.map((b) => (
+              <li key={b.slug}>
+                <Link href={`/products?brand=${b.slug}`}>
+                  {b.imageUrl ? <Image className="brand-logo-img" src={b.imageUrl} alt="" width={120} height={48} /> : <span className="tile-mark" aria-hidden="true">{b.name.trim().charAt(0).toUpperCase()}</span>}
+                  <span>{b.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

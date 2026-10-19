@@ -153,3 +153,23 @@ html { scroll-padding-top: 4.5rem; scroll-padding-bottom: 6rem; }
 .icon-link { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--white); color: var(--navy); }
 .icon-link:hover { color: var(--navy); border-color: var(--primary-dark); background: #faf1dc; }
 .icon-wa { background: #25d366; border-color: #25d366; color: #07210f; } .icon-wa:hover { background: #1fb957; border-color: #1fb957; color: #07210f; }
+
+/* category tiles: a picture with the name on it, like a shop-front shelf */
+.cat-tiles { list-style: none; margin: 0.75rem 0 1.5rem; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+@media (min-width: 700px) { .cat-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; } }
+@media (min-width: 1100px) { .cat-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cat-tile a { position: relative; display: block; aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: linear-gradient(135deg, #243a66, var(--navy)); color: #fff; text-decoration: none; }
+.cat-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.25s ease; }
+.cat-tile.photo a { background: #efeee9; }
+.cat-tile.photo img { object-fit: contain; padding: 0.9rem 0.9rem 2.6rem; }
+.cat-tile a:hover img { transform: scale(1.04); }
+.cat-initial { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 3.2rem; color: rgba(255, 255, 255, 0.35); }
+.cat-label { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 1.8rem 0.8rem 0.65rem; background: linear-gradient(transparent, rgba(8, 16, 36, 0.88)); font-weight: 700; color: #fff; }
+.cat-label small { font-weight: 500; opacity: 0.9; }
+.cat-tile a:focus-visible { outline-offset: 3px; }
+
+/* brand tiles: the logo on white, the name under it */
+.brand-tiles { list-style: none; margin: 0.75rem 0 1.5rem; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 0.6rem; }
+.brand-tiles a { display: grid; justify-items: center; align-content: center; gap: 0.4rem; min-height: 96px; padding: 0.7rem 0.5rem; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; color: var(--navy); font-weight: 700; font-size: 0.9rem; text-align: center; }
+.brand-tiles a:hover { border-color: var(--primary-dark); background: #faf1dc; }
+.brand-logo-img { width: 100%; max-width: 96px; height: 44px; object-fit: contain; }

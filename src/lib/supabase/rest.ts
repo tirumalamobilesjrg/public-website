@@ -39,6 +39,8 @@ export async function selectView<T>(view: string, params: Record<string, string>
   return { rows, total: Number.isFinite(total) ? total : rows.length }
 }
 
-export function publicImageUrl(storagePath: string): string {
-  return `${getEnv().supabaseUrl}/storage/v1/object/public/product-images/${storagePath.split('/').map(encodeURIComponent).join('/')}`
-}
+const publicUrl = (bucket: string, path: string) => `${getEnv().supabaseUrl}/storage/v1/object/public/${bucket}/${path.split('/').map(encodeURIComponent).join('/')}`
+
+export const publicImageUrl = (storagePath: string): string => publicUrl('product-images', storagePath)
+export const brandLogoUrl = (path: string): string => publicUrl('brand-logos', path)
+export const categoryImageUrl = (path: string): string => publicUrl('category-images', path)

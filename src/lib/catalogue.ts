@@ -1,7 +1,8 @@
 import 'server-only'
 import type { CatalogueQuery, ProductCard, PublicImage, PublicProduct, PublicSpec, PublicVariant } from './catalogue-types'
 import { isSlug, primaryImage, priceSummary, searchFilter } from './format'
-import { selectView } from './supabase/rest'
+import { isBrandLogoPath, isCategoryImagePath } from './media'
+import { brandLogoUrl, categoryImageUrl, publicImageUrl, selectView } from './supabase/rest'
 
 export const PAGE_SIZE = 12
 
@@ -59,25 +60,64 @@ export async function getProduct(slug: string): Promise<ProductDetail | null> {
   return { product, variants: variants.rows, images: images.rows, specs: specs.rows }
 }
 
-export type Facet = { slug: string; name: string; count: number }
+/** `imageUrl` is the brand's logo, or the category's picture; for a category without one it is the photo of its newest product (`isPhoto`). */
+export type Facet = { slug: string; name: string; count: number; imageUrl: string | null; isPhoto: boolean }
 
-/** Categories and brands that have at least one published product, derived from the products view (bounded to 1000 rows). */
-export async function listFacets(): Promise<{ categories: Facet[]; brands: Facet[] }> {
-  const { rows } = await selectView<Pick<PublicProduct, 'category_slug' | 'category_name' | 'brand_slug' | 'brand_name'>>(
-    'public_catalogue_products',
-    { select: 'category_slug,category_name,brand_slug,brand_name', limit: '1000' },
-  )
-  const tally = (key: 'category' | 'brand'): Facet[] => {
-    const m = new Map<string, Facet>()
-    for (const r of rows) {
-      const slug = r[`${key}_slug`]
-      const hit = m.get(slug)
-      if (hit) hit.count += 1
-      else m.set(slug, { slug, name: r[`${key}_name`], count: 1 })
-    }
-    return [...m.values()].sort((a, b) => a.name.localeCompare(b.name))
+type FacetRow = Pick<PublicProduct, 'category_slug' | 'category_name' | 'brand_slug' | 'brand_name'> & { brand_logo_path?: string | null; category_image_path?: string | null }
+
+/** The two path columns arrived with backend migration 0027; against a database without it the facets still work, just without pictures. */
+async function facetRows(): Promise<FacetRow[]> {
+  const base = 'category_slug,category_name,brand_slug,brand_name'
+  const params = { order: 'published_at.desc,id.asc', limit: '1000' }
+  try {
+    return (await selectView<FacetRow>('public_catalogue_products', { select: `${base},slug,brand_logo_path,category_image_path`, ...params })).rows
+  } catch {
+    return (await selectView<FacetRow>('public_catalogue_products', { select: `${base},slug`, ...params })).rows
   }
-  return { categories: tally('category'), brands: tally('brand') }
+}
+
+/** Categories and brands that have at least one published product, derived from the products view (bounded to 1000 rows, newest first). */
+export async function listFacets(): Promise<{ categories: Facet[]; brands: Facet[] }> {
+  const rows = (await facetRows()) as Array<FacetRow & { slug?: string }>
+  const brands = new Map<string, Facet>()
+  const categories = new Map<string, Facet & { newest?: string }>()
+  for (const r of rows) {
+    const b = brands.get(r.brand_slug)
+    if (b) {
+      b.count += 1
+      if (!b.imageUrl && isBrandLogoPath(r.brand_logo_path)) b.imageUrl = brandLogoUrl(r.brand_logo_path)
+    } else {
+      brands.set(r.brand_slug, { slug: r.brand_slug, name: r.brand_name, count: 1, imageUrl: isBrandLogoPath(r.brand_logo_path) ? brandLogoUrl(r.brand_logo_path) : null, isPhoto: false })
+    }
+    const c = categories.get(r.category_slug)
+    if (c) {
+      c.count += 1
+      if (!c.imageUrl && isCategoryImagePath(r.category_image_path)) c.imageUrl = categoryImageUrl(r.category_image_path)
+    } else {
+      categories.set(r.category_slug, { slug: r.category_slug, name: r.category_name, count: 1, imageUrl: isCategoryImagePath(r.category_image_path) ? categoryImageUrl(r.category_image_path) : null, isPhoto: false, newest: r.slug })
+    }
+  }
+  // A category without its own picture shows the photo of its newest product, if that product has one.
+  const wanting = [...categories.values()].filter((c) => !c.imageUrl && c.newest && isSlug(c.newest))
+  if (wanting.length > 0) {
+    try {
+      const { rows: images } = await selectView<PublicImage>('public_catalogue_images', {
+        select: 'id,product_slug,storage_path,alt_text,sort_order,is_primary',
+        product_slug: inList(wanting.map((c) => c.newest as string)),
+      })
+      for (const c of wanting) {
+        const photo = primaryImage(images.filter((i) => i.product_slug === c.newest))
+        if (photo) {
+          c.imageUrl = publicImageUrl(photo.storage_path)
+          c.isPhoto = true
+        }
+      }
+    } catch {
+      // pictures are decoration: the tile falls back to its name
+    }
+  }
+  const byName = (a: Facet, b: Facet) => a.name.localeCompare(b.name)
+  return { categories: [...categories.values()].map(({ newest: _n, ...f }) => f).sort(byName), brands: [...brands.values()].sort(byName) }
 }
 
 /** Slugs and last-modified dates for the sitemap, paged so a large catalogue is still bounded per request. */

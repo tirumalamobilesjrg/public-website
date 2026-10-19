@@ -7,7 +7,7 @@ const PORT = Number(process.env.MOCK_PORT || 58431)
 const now = '2026-10-18T10:00:00Z'
 const P = (n, slug, name, brand, cat, avail, desc) => ({ id: `p${n}`, slug, name, brand_name: brand, brand_slug: brand.toLowerCase(), category_name: cat, category_slug: cat.toLowerCase(), description: desc, published_at: now, updated_at: now, availability: avail })
 const products = [
-  P(1, 'nova-x1', 'Nova X1', 'Nova', 'Smartphones', 'in_stock', 'A test phone.'),
+  { ...P(1, 'nova-x1', 'Nova X1', 'Nova', 'Smartphones', 'in_stock', 'A test phone.'), brand_logo_path: 'brands/nova/logo.svg', category_image_path: 'categories/smartphones/pic.svg' },
   P(2, 'nova-x2', 'Nova X2', 'Nova', 'Smartphones', 'out_of_stock', null),
   P(3, 'nova-case', 'Nova Case', 'Nova', 'Accessories', 'in_stock', null),
 ]
@@ -25,8 +25,20 @@ const specs = [
 const shop = [{ shop_name: 'Tirumala Mobiles', address: 'Main Road, Tirupati', phone: '98765 43210', whatsapp: '98765 43211', email: null, opening_hours: 'Mon to Sat 10:00 to 21:00, Sun 10:00 to 14:00', map_url: 'https://maps.google.com/?q=Tirumala+Mobiles', about: null }]
 const views = { public_shop_profile: shop, public_catalogue_products: products, public_catalogue_variants: variants, public_catalogue_images: images, public_catalogue_specifications: specs }
 
+const svg = (body) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 360">${body}</svg>`
+const STORAGE = {
+  'brands/nova/logo.svg': svg('<rect width="480" height="360" fill="#fff"/><circle cx="240" cy="180" r="110" fill="#1c3f8c"/><text x="240" y="215" font-size="110" text-anchor="middle" fill="#fff" font-family="sans-serif" font-weight="700">N</text>'),
+  'categories/smartphones/pic.svg': svg('<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a4a8a"/><stop offset="1" stop-color="#0f1d3a"/></linearGradient></defs><rect width="480" height="360" fill="url(#g)"/><rect x="170" y="40" width="140" height="250" rx="22" fill="#d5a755"/><rect x="180" y="62" width="120" height="190" rx="8" fill="#0f1d3a"/>'),
+}
+
 createServer((req, res) => {
   const url = new URL(req.url, 'http://x')
+  const pub = url.pathname.match(/^\/storage\/v1\/object\/public\/(?:brand-logos|category-images)\/(.+)$/)
+  if (pub) {
+    const body = STORAGE[decodeURIComponent(pub[1])]
+    res.writeHead(body ? 200 : 404, { 'content-type': body ? 'image/svg+xml' : 'text/plain' })
+    return res.end(body ?? 'not found')
+  }
   const m = url.pathname.match(/^\/rest\/v1\/(\w+)$/)
   if (!m || !(m[1] in views)) { res.writeHead(404, { 'content-type': 'application/json' }); return res.end('{"message":"not found"}') }
   let rows = [...views[m[1]]]
