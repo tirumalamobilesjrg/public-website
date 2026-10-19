@@ -22,9 +22,10 @@ html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; font-family: var(--font); color: var(--navy); background: var(--bg); line-height: 1.5; padding-bottom: 4.5rem; }
 h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; margin: 0 0 0.5rem; }
 h1 { font-size: clamp(1.6rem, 5vw, 2.3rem); } h2 { font-size: 1.3rem; } h3 { font-size: 1.05rem; }
-a { color: var(--link); text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; } a:hover, a:focus-visible { color: var(--navy); text-decoration: underline; }
-/* links inside running text keep a permanent underline; menus, breadcrumbs, tiles, cards and buttons underline on hover or focus only */
+a { color: var(--link); text-decoration: none; text-underline-offset: 3px; text-decoration-thickness: 1px; } a:hover, a:focus-visible { color: var(--navy); }
+/* only links inside running text are underlined (permanently); menus, breadcrumbs, tiles, cards, footer and buttons never are, not even on hover: they change colour or background instead */
 p a:not(.btn), small a, .fine a { text-decoration: underline; }
+footer p a:not(.btn) { text-decoration: none; } /* the footer phone number is a link on its own, not part of a sentence */
 .crumbs a { font-weight: 600; }
 img { max-width: 100%; height: auto; }
 :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
@@ -115,7 +116,7 @@ input[type='search'], input[type='text'], select { min-height: 44px; border: 1px
 .compare { border-collapse: collapse; min-width: 28rem; width: 100%; } .compare th, .compare td { padding: 0.6rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; } .compare thead th { background: var(--white); }
 
 footer { background: var(--navy); color: #d7e2ee; padding: 1.75rem 0 2rem; }
-footer a { color: #fff; } footer a:hover, footer a:focus-visible { color: var(--primary); text-decoration: underline; } footer h2 { color: #fff; font-size: 1.05rem; }
+footer a { color: #fff; } footer a:hover, footer a:focus-visible { color: var(--primary); } footer h2 { color: #fff; font-size: 1.05rem; }
 .foot-grid { display: grid; gap: 1.25rem; } @media (min-width: 800px) { .foot-grid { grid-template-columns: 2fr 1fr 1fr; } }
 footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
 .fine { font-size: 0.85rem; color: #aebfd1; margin-top: 1rem; }
