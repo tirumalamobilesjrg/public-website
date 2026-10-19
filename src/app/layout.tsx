@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import '@fontsource-variable/figtree'
 import '@fontsource-variable/bricolage-grotesque'
@@ -8,7 +9,7 @@ import { BottomNav, TopNav } from '@/components/Nav'
 import { getEnv } from '@/lib/env'
 import { BRAND_NAME, getShopProfile, phoneLinks } from '@/lib/shop'
 
-export const viewport: Viewport = { themeColor: '#155eef', width: 'device-width', initialScale: 1 }
+export const viewport: Viewport = { themeColor: '#0f1d3a', width: 'device-width', initialScale: 1 }
 
 export function generateMetadata(): Metadata {
   return {
@@ -18,6 +19,7 @@ export function generateMetadata(): Metadata {
     applicationName: BRAND_NAME,
     openGraph: { siteName: BRAND_NAME, type: 'website', locale: 'en_IN' },
     manifest: '/manifest.webmanifest',
+    icons: { icon: '/logo-64.png', apple: '/logo-192.png' },
   }
 }
 
@@ -31,7 +33,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header className="site-header">
           <div className="wrap">
             <Link className="brand" href="/">
-              <span className="brand-mark" aria-hidden="true">T</span>
+              <Image className="brand-logo" src="/logo-64.png" alt="" width={34} height={34} />
               {BRAND_NAME}
             </Link>
             <TopNav />

@@ -1,15 +1,10 @@
 import type { NextConfig } from 'next'
 
-// Photos are served from the public `product-images` bucket of the configured Supabase project, and only from there.
-const supabase = process.env.SUPABASE_URL ? new URL(process.env.SUPABASE_URL) : null
-const imagePattern = supabase
-  ? [{ protocol: supabase.protocol.replace(':', '') as 'http' | 'https', hostname: supabase.hostname, port: supabase.port, pathname: '/storage/v1/object/public/product-images/**' }]
-  : []
-
 const config: NextConfig = {
   poweredByHeader: false,
   turbopack: { root: process.cwd() },
-  images: { remotePatterns: imagePattern, dangerouslyAllowLocalIP: supabase?.hostname === '127.0.0.1' },
+  // Cloudflare Workers has no built-in image optimiser, so photos are served as uploaded. The CRM keeps uploads small (2 MB limit).
+  images: { unoptimized: true },
   async headers() {
     return [
       { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }] },
