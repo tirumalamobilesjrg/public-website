@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Gallery } from '@/components/Gallery'
 import { AvailabilityBadge, Price } from '@/components/ProductCard'
 import { getProduct } from '@/lib/catalogue'
 import { formatPrice, primaryImage, priceSummary, variantLabel } from '@/lib/format'
@@ -31,8 +31,10 @@ export default async function ProductPage({ params }: Props) {
   if (!d) notFound()
   const shop = await getShopProfile()
   const call = phoneLinks(shop.phone)
+  const chat = phoneLinks(shop.whatsapp ?? shop.phone)
   const { product, variants, images, specs } = d
   const main = primaryImage(images)
+  const sortedImages = main ? [main, ...images.filter((i) => i.id !== main.id)] : images
   const groups = [...new Set(specs.map((s) => s.group_name))]
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -55,16 +57,7 @@ export default async function ProductPage({ params }: Props) {
         </ol>
       </nav>
       <div className="detail">
-        <div className="gallery">
-          <div className="main">
-            {main ? <Image src={publicImageUrl(main.storage_path)} alt={main.alt_text ?? product.name} width={640} height={640} priority sizes="(min-width:800px) 45vw, 100vw" /> : <span className="noimg">Photo coming soon</span>}
-          </div>
-          {images.length > 1 && (
-            <div className="thumbs">
-              {images.map((i) => <Image key={i.id} src={publicImageUrl(i.storage_path)} alt={i.alt_text ?? product.name} width={64} height={64} />)}
-            </div>
-          )}
-        </div>
+        <Gallery images={sortedImages.map((i) => ({ url: publicImageUrl(i.storage_path), alt: i.alt_text ?? '' }))} fallbackAlt={product.name} />
         <div>
           <p className="brand-line">{product.brand_name}</p>
           <h1>{product.name}</h1>
@@ -94,8 +87,8 @@ export default async function ProductPage({ params }: Props) {
 
           <div className="actions">
             {call && <a className="btn" href={call.tel}>Call to check availability</a>}
-            {call && <a className="btn btn-ghost" href={call.wa}>WhatsApp</a>}
-            {!call && <Link className="btn" href="/contact">Visit the shop</Link>}
+            {chat && <a className="btn btn-ghost" href={chat.wa} rel="noopener noreferrer">WhatsApp</a>}
+            {!call && !chat && <Link className="btn" href="/contact">Visit the shop</Link>}
             <Link className="btn btn-ghost" href={`/compare?p=${product.slug}`}>Compare</Link>
           </div>
         </div>

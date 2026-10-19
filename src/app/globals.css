@@ -57,7 +57,7 @@ main { padding: 1.25rem 0 2.5rem; min-height: 60vh; }
 .btn-ghost { background: var(--white); color: var(--navy); border-color: #c9c8bd; } .btn-ghost:hover { background: #faf1dc; border-color: var(--primary-dark); color: var(--navy); }
 .btn-small { min-height: 38px; padding: 0.3rem 0.8rem; font-size: 0.92rem; }
 label { font-weight: 600; font-size: 0.92rem; }
-input[type='search'], input[type='text'], select { min-height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 0.4rem 0.75rem; font: inherit; color: var(--navy); background: var(--white); max-width: 100%; }
+input[type='search'], input[type='text'], select { min-height: 44px; border: 1px solid #6f7b8b; border-radius: 10px; padding: 0.4rem 0.75rem; font: inherit; color: var(--navy); background: var(--white); max-width: 100%; }
 .search-form { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: end; }
 .search-form .grow { flex: 1 1 14rem; display: grid; gap: 0.25rem; }
 .search-form input[type='search'] { width: 100%; }
@@ -123,3 +123,10 @@ footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem
 .install { position: fixed; left: 0.75rem; right: 0.75rem; bottom: 5rem; z-index: 30; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); padding: 1rem; box-shadow: 0 8px 24px rgba(16, 42, 67, 0.18); max-width: 28rem; }
 .install h2 { font-size: 1.05rem; }
 @media (min-width: 900px) { .install { left: auto; right: 1rem; bottom: 1rem; } }
+
+/* keyboard focus: white on the navy header and footer (the blue ring is 1.7:1 there), and room for the sticky bars */
+.site-header :focus-visible, footer :focus-visible, .skip:focus-visible { outline-color: #fff; }
+html { scroll-padding-top: 4.5rem; scroll-padding-bottom: 6rem; }
+.bottom-nav a[aria-current='page'] { font-weight: 800; background: #faf1dc; }
+.gallery .thumbs button { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; }
+.gallery .thumbs button[aria-current='true'] img { outline: 3px solid var(--navy); outline-offset: 1px; }

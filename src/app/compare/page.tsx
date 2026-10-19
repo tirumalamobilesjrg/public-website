@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { AvailabilityBadge } from '@/components/ProductCard'
-import { getProduct, listProducts } from '@/lib/catalogue'
+import { getProduct, listProductNames } from '@/lib/catalogue'
 import { formatPrice, isSlug, priceSummary } from '@/lib/format'
 
 export const metadata: Metadata = {
@@ -18,7 +18,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
   const slugs = [...new Set((Array.isArray(raw) ? raw : raw ? raw.split(',') : []).filter(isSlug))].slice(0, MAX)
   const details = (await Promise.all(slugs.map((s) => getProduct(s)))).filter((d) => d !== null)
   const chosen = details.map((d) => d.product.slug)
-  const picker = chosen.length < MAX ? await listProducts({ sort: 'name' }) : null
+  const picker = chosen.length < MAX ? await listProductNames() : null
   const href = (list: string[]) => (list.length ? `/compare?${list.map((s) => `p=${s}`).join('&')}` : '/compare')
   const keys = [...new Set(details.flatMap((d) => d.specs.map((s) => `${s.group_name}|${s.spec_key}`)))]
 
@@ -36,7 +36,7 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
                   <th scope="col" key={d.product.slug}>
                     <Link href={`/products/${d.product.slug}`}>{d.product.name}</Link>
                     <br />
-                    <Link className="muted" href={href(chosen.filter((s) => s !== d.product.slug))}>Remove</Link>
+                    <Link className="muted" href={href(chosen.filter((s) => s !== d.product.slug))} aria-label={`Remove ${d.product.name} from the comparison`}>Remove</Link>
                   </th>
                 ))}
               </tr>
@@ -73,11 +73,11 @@ export default async function ComparePage({ searchParams }: { searchParams: Prom
       {picker && (
         <section aria-labelledby="add" className="panel">
           <h2 id="add">{details.length ? 'Add another' : 'Choose a product'}</h2>
-          {picker.cards.length === 0 ? (
+          {picker.length === 0 ? (
             <p>No products are listed yet.</p>
           ) : (
             <ul className="chips">
-              {picker.cards.filter((c) => !chosen.includes(c.slug)).map((c) => <li key={c.slug}><Link href={href([...chosen, c.slug])}>{c.name}</Link></li>)}
+              {picker.filter((c) => !chosen.includes(c.slug)).map((c) => <li key={c.slug}><Link href={href([...chosen, c.slug])}>{c.name}</Link></li>)}
             </ul>
           )}
         </section>

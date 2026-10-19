@@ -18,13 +18,13 @@ export default async function ContactPage() {
         <section className="panel">
           <h2>Get in touch</h2>
           {call && <p>Phone: <a href={call.tel}>{shop.phone}</a></p>}
-          {shop.email && <p>Email: <a href={`mailto:${shop.email}`}>{shop.email}</a></p>}
+          {shop.email && <p>Email: <a href={`mailto:${encodeURIComponent(shop.email)}`}>{shop.email}</a></p>}
         </section>
       )}
       <div className="actions">
         {call && <a className="btn" href={call.tel}>Call now</a>}
         {wa && <a className="btn btn-ghost" href={wa.wa}>WhatsApp</a>}
-        {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener">Get directions</a>}
+        {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener noreferrer">Get directions</a>}
       </div>
     </div>
   )

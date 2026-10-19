@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { availabilityLabel, formatPrice, isSlug, primaryImage, priceSummary, sanitizeSearch, variantLabel } from './format'
+import { availabilityLabel, formatPrice, isSlug, primaryImage, priceSummary, sanitizeSearch, searchFilter, variantLabel } from './format'
 
 describe('prices', () => {
   it('formats rupees the Indian way', () => {
@@ -45,5 +45,20 @@ describe('search and slugs', () => {
   it('accepts only clean slugs', () => {
     expect(isSlug('nova-x1')).toBe(true)
     for (const bad of ['', 'Nova', 'a b', 'a/../b', 'a,b', '-a', 'a--', "x'or'1", 'a'.repeat(121)]) expect(isSlug(bad)).toBe(false)
+  })
+})
+
+
+describe('searchFilter (multi-word search)', () => {
+  it('ANDs the words, each matched against name, brand or category', () => {
+    expect(searchFilter('samsung s24')).toBe('(or(name.ilike.*samsung*,brand_name.ilike.*samsung*,category_name.ilike.*samsung*),or(name.ilike.*s24*,brand_name.ilike.*s24*,category_name.ilike.*s24*))')
+  })
+  it('returns null for nothing searchable and strips filter syntax', () => {
+    expect(searchFilter('')).toBeNull()
+    expect(searchFilter('  ,,()  ')).toBeNull()
+    expect(searchFilter('a),or(b')).toBe('(or(name.ilike.*a*,brand_name.ilike.*a*,category_name.ilike.*a*),or(name.ilike.*or*,brand_name.ilike.*or*,category_name.ilike.*or*),or(name.ilike.*b*,brand_name.ilike.*b*,category_name.ilike.*b*))')
+  })
+  it('uses at most five words', () => {
+    expect(searchFilter('a1 b2 c3 d4 e5 f6 g7')!.match(/or\(/g)).toHaveLength(5)
   })
 })

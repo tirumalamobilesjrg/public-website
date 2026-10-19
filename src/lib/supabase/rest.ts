@@ -25,11 +25,15 @@ export async function selectView<T>(view: string, params: Record<string, string>
   }
   let res: Response
   try {
-    res = await fetch(url, { headers, next: { revalidate: REVALIDATE_SECONDS } })
-  } catch {
+    res = await fetch(url, { headers, next: { revalidate: REVALIDATE_SECONDS }, signal: AbortSignal.timeout(8000) })
+  } catch (e) {
+    console.error(`catalogue: could not reach ${view}`, e instanceof Error ? e.name : 'error')
     throw new CatalogueError('Could not reach the catalogue')
   }
-  if (!res.ok && res.status !== 206) throw new CatalogueError(`Catalogue request failed (${res.status})`)
+  if (!res.ok && res.status !== 206) {
+    console.error(`catalogue: ${view} answered ${res.status}`)
+    throw new CatalogueError(`Catalogue request failed (${res.status})`)
+  }
   const rows = (await res.json()) as T[]
   const total = Number(res.headers.get('content-range')?.split('/')[1] ?? rows.length)
   return { rows, total: Number.isFinite(total) ? total : rows.length }

@@ -37,3 +37,7 @@ Not done / not verified: real Supabase (anonymous-access tests against the local
 - `npm run check:anon` passed 57/57 against the local stack (and against the hosted project).
 - On Workers without a cache binding the 300 s fetch revalidation does not cache: a CRM edit showed on the site on the very next request. Each page view therefore calls Supabase (2-4 small reads); add a Cache API layer if traffic grows.
 - Not verified: install/offline behaviour on a real phone, a deployed Cloudflare Worker (nothing is deployed), Lighthouse scores, photo delivery speed (photos are not resized; consider resizing in the CRM before upload).
+
+## Review fixes (branch fix/review-fixes)
+Multi-word search (`searchFilter`: words ANDed, each over name/brand/category; verified against real PostgREST), compare picker lists up to 200 names, WhatsApp buttons use the CRM WhatsApp number (falls back to the phone), tappable photo thumbnails (`Gallery`), white focus rings on the navy header/footer, scroll padding for sticky bars, 3:1 form borders, "In stock at the shop" wording, nav tab "Products", errors logged with `console.error` (Workers logs), 8 s upstream timeout, `global-error.tsx`, HSTS/Permissions-Policy/CSP-lite headers (also in `public/_headers` for static assets), CI `permissions: contents: read`.
+Still open: Worker page cache (Cache API does not work on workers.dev; needs a custom domain or KV), one combined card view to cut round trips, Lighthouse/axe run, real-phone PWA check.

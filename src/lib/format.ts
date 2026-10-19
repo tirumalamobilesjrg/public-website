@@ -29,5 +29,15 @@ export function sanitizeSearch(raw: string): string {
   return raw.replace(/[,()*%\\:"'`]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60)
 }
 
+/**
+ * PostgREST `and` filter for a search box: every word must match the name, brand or category (so "samsung s24" works).
+ * Words are already stripped of filter syntax by sanitizeSearch; at most 5 are used. Null when there is nothing to search for.
+ */
+export function searchFilter(raw: string): string | null {
+  const words = sanitizeSearch(raw).split(' ').filter(Boolean).slice(0, 5)
+  if (words.length === 0) return null
+  return `(${words.map((w) => `or(name.ilike.*${w}*,brand_name.ilike.*${w}*,category_name.ilike.*${w}*)`).join(',')})`
+}
+
 export const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 export const isSlug = (s: string) => s.length <= 120 && SLUG.test(s)

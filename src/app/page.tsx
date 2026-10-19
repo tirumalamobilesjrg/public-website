@@ -7,6 +7,7 @@ import { BRAND_NAME, getShopProfile, phoneLinks } from '@/lib/shop'
 export default async function Home() {
   const [shop, facets, featured] = await Promise.all([getShopProfile(), listFacets().catch(() => null), listProducts({ inStockOnly: true }).catch(() => null)])
   const call = phoneLinks(shop.phone)
+  const chat = phoneLinks(shop.whatsapp ?? shop.phone)
   return (
     <>
       <section className="intro">
@@ -35,7 +36,8 @@ export default async function Home() {
       )}
 
       <section aria-labelledby="featured">
-        <h2 id="featured">Available now</h2>
+        <h2 id="featured">In stock at the shop</h2>
+        <p className="muted">As last updated by the shop. Call or visit to confirm before you travel.</p>
         {featured === null ? (
           <div className="empty" role="alert"><p>The catalogue could not be loaded right now. Please refresh in a moment.</p></div>
         ) : featured.cards.length === 0 ? (
@@ -50,14 +52,14 @@ export default async function Home() {
 
       <section className="panel" aria-labelledby="visit">
         <h2 id="visit">Visit the shop</h2>
-        {shop.address || call ? (
+        {shop.address || call || chat ? (
           <>
             {shop.address && <p>{shop.address}</p>}
             {shop.opening_hours && <p>Open: {shop.opening_hours}</p>}
             <div className="actions">
               {call && <a className="btn" href={call.tel}>Call now</a>}
-              {call && <a className="btn btn-ghost" href={call.wa}>WhatsApp</a>}
-              {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener">Get directions</a>}
+              {chat && <a className="btn btn-ghost" href={chat.wa} rel="noopener noreferrer">WhatsApp</a>}
+              {shop.map_url && <a className="btn btn-ghost" href={shop.map_url} rel="noopener noreferrer">Get directions</a>}
             </div>
           </>
         ) : (

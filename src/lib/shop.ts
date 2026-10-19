@@ -37,7 +37,8 @@ export async function getShopProfile(): Promise<ShopProfile> {
       map_url: safeHttps(clean(r.map_url)),
       about: clean(r.about),
     }
-  } catch {
+  } catch (e) {
+    console.error('shop profile unavailable', e instanceof Error ? e.name : 'error')
     return EMPTY
   }
 }

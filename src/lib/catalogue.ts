@@ -1,6 +1,6 @@
 import 'server-only'
 import type { CatalogueQuery, ProductCard, PublicImage, PublicProduct, PublicSpec, PublicVariant } from './catalogue-types'
-import { isSlug, primaryImage, priceSummary, sanitizeSearch } from './format'
+import { isSlug, primaryImage, priceSummary, searchFilter } from './format'
 import { selectView } from './supabase/rest'
 
 export const PAGE_SIZE = 12
@@ -12,14 +12,20 @@ const inList = (slugs: string[]) => `in.(${slugs.join(',')})` // slugs are valid
 export async function listProducts(query: CatalogueQuery): Promise<{ cards: ProductCard[]; total: number; page: number; pages: number }> {
   const page = Math.max(1, Math.floor(query.page ?? 1))
   const params: Record<string, string> = { select: PRODUCT_COLS, order: query.sort === 'name' ? 'name.asc,id.asc' : 'published_at.desc,id.asc' }
-  const term = sanitizeSearch(query.q ?? '')
-  if (term) params.or = `(name.ilike.*${term}*,brand_name.ilike.*${term}*,category_name.ilike.*${term}*)`
+  const filter = searchFilter(query.q ?? '')
+  if (filter) params.and = filter
   if (query.category && isSlug(query.category)) params.category_slug = `eq.${query.category}`
   if (query.brand && isSlug(query.brand)) params.brand_slug = `eq.${query.brand}`
   if (query.inStockOnly) params.availability = 'eq.in_stock'
   const from = (page - 1) * PAGE_SIZE
   const { rows, total } = await selectView<PublicProduct>('public_catalogue_products', params, { from, to: from + PAGE_SIZE - 1 })
   return { cards: await withPrices(rows), total, page, pages: Math.max(1, Math.ceil(total / PAGE_SIZE)) }
+}
+
+/** Every published product name (up to 200), for the compare picker. */
+export async function listProductNames(): Promise<Array<{ slug: string; name: string }>> {
+  const { rows } = await selectView<{ slug: string; name: string }>('public_catalogue_products', { select: 'slug,name', order: 'name.asc,id.asc', limit: '200' })
+  return rows
 }
 
 async function withPrices(products: PublicProduct[]): Promise<ProductCard[]> {
